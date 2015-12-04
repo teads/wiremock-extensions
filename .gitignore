@@ -1,14 +1,17 @@
 *.class
 *.log
 
+# SBT
+
 .cache
 .lib/
-
 dist/*
 target/
 lib_managed/
 src_managed/
 project/boot/
 project/plugins/project/
+
+# IDE
 
 .idea
