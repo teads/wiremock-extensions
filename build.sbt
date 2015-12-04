@@ -1,14 +1,22 @@
-name := "wiremock-json-extractor"
-
-version := "0.1"
-
-scalaVersion := "2.11.7"
+name            := "wiremock-json-extractor"
+organization    := "tv.teads"
+scalaVersion    := "2.11.7"
+scalacOptions   := Seq("-feature", "-deprecation", "-Xlint")
 
 libraryDependencies ++= Seq(
-  "com.github.tomakehurst" % "wiremock" % "1.57" % "provided",
-  "io.gatling" % "jsonpath_2.11" % "0.6.4",
+  "com.github.tomakehurst"   % "wiremock"      % "1.57"   % "provided",
+  "io.gatling"              %% "jsonpath"      % "0.6.4",
 
-  "org.scalatest" % "scalatest_2.11" % "2.2.4" % "test",
+  "org.scalatest"           %% "scalatest"     % "2.2.4"  % "test",
   "net.databinder.dispatch" %% "dispatch-core" % "0.11.2" % "test"
 )
-    
+
+// Release Settings
+
+def teadsRepo(repo: String) = repo at s"http://nexus.teads.net/nexus/content/repositories/$repo"
+
+publishMavenStyle     := true
+pomIncludeRepository  := { _ => false }
+publishTo             := Some(if(isSnapshot.value) teadsRepo("snapshots") else teadsRepo("releases"))
+
+credentials           += Credentials(Path.userHome / ".ivy2" / ".credentials")

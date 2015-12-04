@@ -20,16 +20,17 @@ class JsonExtractor extends ResponseTransformer {
   override val applyGlobally: Boolean = false
 
   /**
-    * Transforms a response's body by extracting JSONPath and
-    * replace them from the request.
-    *
-    * @param request a JSON request
-    * @param responseDefinition the response to transform
-    */
+   * Transforms a response's body by extracting JSONPath and
+   * replace them from the request.
+   *
+   * @param request a JSON request
+   * @param responseDefinition the response to transform
+   */
   override def transform(
-                          request: Request,
-                          responseDefinition: ResponseDefinition,
-                          files: FileSource): ResponseDefinition = {
+    request:            Request,
+    responseDefinition: ResponseDefinition,
+    files:              FileSource
+  ): ResponseDefinition = {
     Try {
       val requestBody = (new ObjectMapper).readValue(request.getBodyAsString, classOf[Object])
       val template = responseDefinition.getBody
@@ -48,27 +49,27 @@ class JsonExtractor extends ResponseTransformer {
     responseBody.replaceAllLiterally("""\$""", "$")
 
   /**
-    * Replaces all JSONPath from template by searching values
-    * in the requestBody.
-    *
-    * @param requestBody the JSON used to look for values
-    * @param template the response to transform
-    * @return
-    */
+   * Replaces all JSONPath from template by searching values
+   * in the requestBody.
+   *
+   * @param requestBody the JSON used to look for values
+   * @param template the response to transform
+   * @return
+   */
   def replacePaths(requestBody: Any, template: String): String =
     replacePathsRec(requestBody, template, "")
 
   @tailrec
   private def replacePathsRec(requestBody: Any, template: String, responseBody: String): String = {
     findFirstPath(template) match {
-      case None => responseBody + template
-      case Some(matched) =>
+      case None ⇒ responseBody + template
+      case Some(matched) ⇒
         val toAdd = extractValue(requestBody, matched.matched) match {
-          case None =>
+          case None ⇒
             // since we don't have anything to replace
             // we will add the raw template to the output body
             template.take(matched.end)
-          case Some(value) =>
+          case Some(value) ⇒
             // since we got a replacement
             // we will add it to the start of the matched path
             template.take(matched.start) + value
@@ -79,20 +80,20 @@ class JsonExtractor extends ResponseTransformer {
   }
 
   /**
-    * Finds the first JSONPath in the template.
-    */
+   * Finds the first JSONPath in the template.
+   */
   def findFirstPath(template: String): Option[Regex.Match] =
     pattern.findFirstMatchIn(template)
 
   /**
-    * Extracts the JSONPath value from the requestBody if any.
-    */
+   * Extracts the JSONPath value from the requestBody if any.
+   */
   def extractValue(requestBody: Any, path: String): Option[String] = {
     JsonPath
       .query(path, requestBody)
       .right
       .map(_.toList.headOption.map(_.toString))
-      .fold(_ => None, identity)
+      .fold(_ ⇒ None, identity)
   }
 
 }

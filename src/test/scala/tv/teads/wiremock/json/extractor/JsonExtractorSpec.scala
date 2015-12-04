@@ -15,10 +15,12 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class JsonExtractorSpec extends FlatSpec with Matchers with BeforeAndAfterAll with ScalaFutures {
 
-  override implicit val patienceConfig = PatienceConfig(Span(500, Millis), Span(50, Millis))
+  val wiremockPort = 12345
+  override implicit val patienceConfig = PatienceConfig(Span(1000, Millis), Span(100, Millis))
 
   val wireMockServer: WireMockServer = new WireMockServer(
     wireMockConfig()
+      .port(wiremockPort)
       .extensions(new JsonExtractor)
   )
 
@@ -42,7 +44,7 @@ class JsonExtractorSpec extends FlatSpec with Matchers with BeforeAndAfterAll wi
 
   "JsonExtractor" should "replace JSONPath in response body" in {
     requests.foreach {
-      case (requestBody, responseBody, result) =>
+      case (requestBody, responseBody, result) ⇒
         val requestUrl = UUID.randomUUID().toString
 
         wireMockServer.givenThat(
@@ -51,15 +53,16 @@ class JsonExtractorSpec extends FlatSpec with Matchers with BeforeAndAfterAll wi
               aResponse()
                 .withHeader("Content-Type", "text/plain")
                 .withBody(responseBody)
-                .withTransformers("json-extractor"))
+                .withTransformers("json-extractor")
+            )
         )
 
         val request: Future[Response] =
-          Http(url("http://localhost:8080/" + requestUrl)
+          Http(url(s"http://localhost:$wiremockPort/$requestUrl")
             .<<(requestBody)
             .setContentType("application/json", "UTF-8"))
 
-        whenReady(request) { request =>
+        whenReady(request) { request ⇒
           withClue((requestBody, responseBody, result)) {
             request.getResponseBody shouldEqual result
           }
