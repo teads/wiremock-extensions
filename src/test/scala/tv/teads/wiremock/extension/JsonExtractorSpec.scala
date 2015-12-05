@@ -1,4 +1,4 @@
-package tv.teads.wiremock.json.extractor
+package tv.teads.wiremock.extension
 
 import java.util.UUID
 
@@ -15,12 +15,12 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class JsonExtractorSpec extends FlatSpec with Matchers with BeforeAndAfterAll with ScalaFutures {
 
-  val wiremockPort = 12345
+  val wireMockPort = 12345
   override implicit val patienceConfig = PatienceConfig(Span(1000, Millis), Span(100, Millis))
 
   val wireMockServer: WireMockServer = new WireMockServer(
     wireMockConfig()
-      .port(wiremockPort)
+      .port(wireMockPort)
       .extensions(new JsonExtractor)
   )
 
@@ -58,7 +58,7 @@ class JsonExtractorSpec extends FlatSpec with Matchers with BeforeAndAfterAll wi
         )
 
         val request: Future[Response] =
-          Http(url(s"http://localhost:$wiremockPort/$requestUrl")
+          Http(url(s"http://localhost:$wireMockPort/$requestUrl")
             .<<(requestBody)
             .setContentType("application/json", "UTF-8"))
 

@@ -15,7 +15,7 @@ The only way is through the WireMock standalone process.
 ```
   java -cp "wiremock-1.58-standalone.jar:wiremock-json-extractor_2.11-0.2.jar"
        com.github.tomakehurst.wiremock.standalone.WireMockServerRunner 
-       --extensions tv.teads.wiremock.json.extractor.JsonExtractor
+       --extensions tv.teads.wiremock.extension.JsonExtractor
 ```
 
 ## Usage

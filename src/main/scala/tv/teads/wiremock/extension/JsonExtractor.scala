@@ -1,4 +1,4 @@
-package tv.teads.wiremock.json.extractor
+package tv.teads.wiremock.extension
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder
@@ -13,11 +13,11 @@ import scala.util.matching.Regex
 
 class JsonExtractor extends ResponseTransformer {
 
-  val pattern: Regex = """(?<!\\)(\$\.[a-zA-Z0-9\@\.\[\]\*\,\:\?\(\)]*)""".r
-
   override val name: String = "json-extractor"
 
   override val applyGlobally: Boolean = false
+
+  val pattern: Regex = """(?<!\\)(\$\.[a-zA-Z0-9\@\.\[\]\*\,\:\?\(\)]*)""".r
 
   val mapper: ObjectMapper = new ObjectMapper
 
