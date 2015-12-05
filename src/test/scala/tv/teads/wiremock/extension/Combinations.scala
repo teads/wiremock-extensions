@@ -9,21 +9,17 @@ import dispatch.{Future, Http, url}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class JsonExtractorSpec extends ExtensionSpec {
+class Combinations extends ExtensionSpec {
 
-  override val extensions: List[ResponseTransformer] = List(new JsonExtractor)
+  override def extensions: List[ResponseTransformer] = List(new JsonExtractor, new Calculator)
 
   val requests: List[(String, String, String)] = List(
-    ("""{}""", "$.single", "$.single"), // not found case
-    ("""{"single":"value"}""", """\$.single""", "$.single"), // with escape
-    ("""{"single":"value"}""", "$.single", "value"), // simple case
-    ("""{"nested":{"single":"value"}}""", "$.nested.single", "value"), // with nested value
-    ("""{"array":["1","2"]}""", "$.array[0]", "1"), // with array
-    ("""{"single":"value","array":["1","2"]}""", "$.single $.array[1]", "value 2"), // with multi replacements
-    ("""{"single":"value"}""", "$.single $.single", "value value") // with multi same replacements
+    ("""{"single":"value"}""", "$.single", "value"),
+    ("""{}""", "1+2", "3"),
+    ("""{"single":1}""", "$.single + 2", "3")
   )
 
-  "JsonExtractor" should "replace JSONPath in response body" in {
+  "JsonExtractor and Calculator" should "combine" in {
     requests.foreach {
       case (requestBody, responseBody, result) ⇒
         val requestUrl = UUID.randomUUID().toString
@@ -34,7 +30,7 @@ class JsonExtractorSpec extends ExtensionSpec {
               aResponse()
                 .withHeader("Content-Type", "text/plain")
                 .withBody(responseBody)
-                .withTransformers("json-extractor")
+                .withTransformers("json-extractor", "calculator")
             )
         )
 
