@@ -19,6 +19,8 @@ class JsonExtractor extends ResponseTransformer {
 
   override val applyGlobally: Boolean = false
 
+  val mapper: ObjectMapper = new ObjectMapper
+
   /**
    * Transforms a response's body by extracting JSONPath and
    * replace them from the request.
@@ -32,7 +34,7 @@ class JsonExtractor extends ResponseTransformer {
     files:              FileSource
   ): ResponseDefinition = {
     Try {
-      val requestBody = (new ObjectMapper).readValue(request.getBodyAsString, classOf[Object])
+      val requestBody = mapper.readValue(request.getBodyAsString, classOf[Object])
       val template = responseDefinition.getBody
 
       val replacedPath = replacePaths(requestBody, template)
