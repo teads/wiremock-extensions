@@ -17,7 +17,7 @@ class JsonExtractor extends ResponseTransformer {
 
   override val applyGlobally: Boolean = false
 
-  val pattern: Regex = """(?<!\\)(\$\.[a-zA-Z0-9\@\.\[\]\*\,\:\?\(\)]*)""".r
+  val pattern: Regex = """\$\{(\$\.[ ='a-zA-Z0-9\@\.\[\]\*\,\:\?\(\)]*)\}""".r
 
   val mapper: ObjectMapper = new ObjectMapper
 
@@ -37,18 +37,12 @@ class JsonExtractor extends ResponseTransformer {
       val requestBody = mapper.readValue(request.getBodyAsString, classOf[Object])
       val template = responseDefinition.getBody
 
-      val replacedPath = replacePaths(requestBody, template)
-      val replacedEscape = replaceEscape(replacedPath)
-
       ResponseDefinitionBuilder
         .like(responseDefinition)
-        .withBody(replacedEscape)
+        .withBody(replacePaths(requestBody, template))
         .build()
     }.getOrElse(responseDefinition)
   }
-
-  def replaceEscape(responseBody: String): String =
-    responseBody.replaceAllLiterally("""\$""", "$")
 
   /**
    * Replaces all JSONPath from template by searching values
@@ -66,7 +60,8 @@ class JsonExtractor extends ResponseTransformer {
     findFirstPath(template) match {
       case None ⇒ responseBody + template
       case Some(matched) ⇒
-        val toAdd = extractValue(requestBody, matched.matched) match {
+        val path: String = matched.group(1)
+        val toAdd: String = extractValue(requestBody, path) match {
           case None ⇒
             // since we don't have anything to replace
             // we will add the raw template to the output body
@@ -99,5 +94,3 @@ class JsonExtractor extends ResponseTransformer {
   }
 
 }
-
-object JsonExtractor extends JsonExtractor

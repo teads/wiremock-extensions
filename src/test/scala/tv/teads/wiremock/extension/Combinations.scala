@@ -14,9 +14,9 @@ class Combinations extends ExtensionSpec {
   override def extensions: List[ResponseTransformer] = List(new JsonExtractor, new Calculator)
 
   val requests: List[(String, String, String)] = List(
-    ("""{"single":"value"}""", "$.single", "value"),
+    ("""{"single":"value"}""", s"$${$$.single}", "value"),
     ("""{}""", "1+2", "3"),
-    ("""{"single":1}""", "$.single + 2", "3")
+    ("""{"single":1}""", s"$${$$.single} + 2", "3")
   )
 
   "JsonExtractor and Calculator" should "combine" in {

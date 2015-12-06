@@ -14,13 +14,13 @@ class JsonExtractorSpec extends ExtensionSpec {
   override val extensions: List[ResponseTransformer] = List(new JsonExtractor)
 
   val requests: List[(String, String, String)] = List(
-    ("""{}""", "$.single", "$.single"), // not found case
-    ("""{"single":"value"}""", """\$.single""", "$.single"), // with escape
-    ("""{"single":"value"}""", "$.single", "value"), // simple case
-    ("""{"nested":{"single":"value"}}""", "$.nested.single", "value"), // with nested value
-    ("""{"array":["1","2"]}""", "$.array[0]", "1"), // with array
-    ("""{"single":"value","array":["1","2"]}""", "$.single $.array[1]", "value 2"), // with multi replacements
-    ("""{"single":"value"}""", "$.single $.single", "value value") // with multi same replacements
+    ("""{}""", s"$${$$.single}", s"$${$$.single}"), // not found case
+    ("""{"single":"value"}""", s"""$$.single""", s"$$.single"), // without interpretation
+    ("""{"single":"value"}""", s"$${$$.single}", "value"), // simple case
+    ("""{"nested":{"single":"value"}}""", s"$${$$.nested.single}", "value"), // with nested value
+    ("""{"array":["1","2"]}""", s"$${$$.array[0]}", "1"), // with array
+    ("""{"single":"value","array":["1","2"]}""", s"$${$$.single} $${$$.array[1]}", "value 2"), // with multi replacements
+    ("""{"single":"value"}""", s"$${$$.single} $${$$.single}", "value value") // with multi same replacements
   )
 
   "JsonExtractor" should "replace JSONPath in response body" in {
