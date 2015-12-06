@@ -15,8 +15,8 @@ class Combinations extends ExtensionSpec {
 
   val requests: List[(String, String, String)] = List(
     ("""{"single":"value"}""", s"$${$$.single}", "value"),
-    ("""{}""", "1+2", "3"),
-    ("""{"single":1}""", s"$${$$.single} + 2", "3")
+    ("""{}""", s"$${1+2}", "3"),
+    ("""{"single":1}""", s"$${$${$$.single} + 2}", "3")
   )
 
   "JsonExtractor and Calculator" should "combine" in {

@@ -14,12 +14,13 @@ class CalculatorSpec extends ExtensionSpec {
   override val extensions: List[ResponseTransformer] = List(new Calculator)
 
   val requests: List[(String, String)] = List(
-    ("1+2", "3"),
-    ("1-2", "-1"),
-    ("1*2", "2"),
-    ("1/2", "0.5"),
-    ("1 + 2", "3"),
-    ("1.1 + 2.2", "3.3")
+    (s"$${1+2}", "3"),
+    (s"$${1-2}", "-1"),
+    (s"$${1*2}", "2"),
+    (s"$${1/2}", "0.5"),
+    (s"$${1 + 2}", "3"),
+    (s"$${1.1 + 2.2}", "3.3"),
+    (s"$${1/0}", s"$${1/0}")
   )
 
   "Calculator" should "replace simple calculus in response body" in {
