@@ -17,7 +17,8 @@ class CalculatorSpec extends ExtensionSpec {
     (s"$${1/2}", "0.5"),
     (s"$${1 + 2}", "3"),
     (s"$${1.1 + 2.2}", "3.3"),
-    (s"$${1/0}", s"$${1/0}")
+    (s"$${1/0}", s"$${1/0}"),
+    (s"$${1+2}, $${2+3}", "3, 5")
   )
 
   "Calculator" should "replace simple calculus in response body" in {
