@@ -3,15 +3,12 @@ package tv.teads.wiremock.extension
 import java.util.UUID
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import com.github.tomakehurst.wiremock.extension.ResponseTransformer
 import com.ning.http.client.Response
 import dispatch.{Future, Http, url}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class Combinations extends ExtensionSpec {
-
-  override def extensions: List[ResponseTransformer] = List(new JsonExtractor, new Calculator)
 
   val requests: List[(String, String, String)] = List(
     ("""{"single":"value"}""", s"$${$$.single}", "value"),
@@ -22,10 +19,10 @@ class Combinations extends ExtensionSpec {
   "JsonExtractor and Calculator" should "combine" in {
     requests.foreach {
       case (requestBody, responseBody, result) ⇒
-        val requestUrl = UUID.randomUUID().toString
+        val requestUrl = "/" + UUID.randomUUID().toString
 
         wireMockServer.givenThat(
-          post(urlEqualTo("/" + requestUrl))
+          post(urlEqualTo(requestUrl))
             .willReturn(
               aResponse()
                 .withHeader("Content-Type", "text/plain")
@@ -35,7 +32,7 @@ class Combinations extends ExtensionSpec {
         )
 
         val request: Future[Response] =
-          Http(url(s"http://localhost:${wireMockServer.port()}/$requestUrl")
+          Http(url(wireMockUrl + requestUrl)
             .<<(requestBody)
             .setContentType("application/json", "UTF-8"))
 

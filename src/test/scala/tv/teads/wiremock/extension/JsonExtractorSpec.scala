@@ -3,15 +3,12 @@ package tv.teads.wiremock.extension
 import java.util.UUID
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import com.github.tomakehurst.wiremock.extension.ResponseTransformer
 import com.ning.http.client.Response
 import dispatch.{Future, Http, url}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class JsonExtractorSpec extends ExtensionSpec {
-
-  override val extensions: List[ResponseTransformer] = List(new JsonExtractor)
 
   val requests: List[(String, String, String)] = List(
     ("""{}""", s"$${$$.single}", s"$${$$.single}"), // not found case
@@ -26,10 +23,10 @@ class JsonExtractorSpec extends ExtensionSpec {
   "JsonExtractor" should "replace JSONPath in response body" in {
     requests.foreach {
       case (requestBody, responseBody, result) ⇒
-        val requestUrl = UUID.randomUUID().toString
+        val requestUrl = "/" + UUID.randomUUID().toString
 
         wireMockServer.givenThat(
-          post(urlEqualTo("/" + requestUrl))
+          post(urlEqualTo(requestUrl))
             .willReturn(
               aResponse()
                 .withHeader("Content-Type", "text/plain")
@@ -39,7 +36,7 @@ class JsonExtractorSpec extends ExtensionSpec {
         )
 
         val request: Future[Response] =
-          Http(url(s"http://localhost:${wireMockServer.port()}/$requestUrl")
+          Http(url(wireMockUrl + requestUrl)
             .<<(requestBody)
             .setContentType("application/json", "UTF-8"))
 
