@@ -13,6 +13,8 @@ libraryDependencies ++= Seq(
   "net.databinder.dispatch" %% "dispatch-core" % "0.11.2" % "test"
 )
 
+fork in Test := true
+
 // Release Settings
 
 def teadsRepo(repo: String) = repo at s"http://nexus.teads.net/nexus/content/repositories/$repo"
