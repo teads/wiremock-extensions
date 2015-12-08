@@ -17,9 +17,11 @@ class JsonExtractor extends ResponseTransformer {
 
   override val applyGlobally: Boolean = false
 
-  val pattern: Regex = """\$\{(\$\.[ ='a-zA-Z0-9\@\.\[\]\*\,\:\?\(\)]*)\}""".r
+  private val defaultRegex: Regex = """(?:\§(.+))?""".r
+  private val jsonRegex: Regex = """(\$\.[ ='a-zA-Z0-9\@\.\[\]\*\,\:\?\(\)\&\|\<\>]*)""".r
+  private val pattern: Regex = ("""\$\{""" + jsonRegex + defaultRegex + """\}""").r
 
-  val mapper: ObjectMapper = new ObjectMapper
+  private val mapper: ObjectMapper = new ObjectMapper
 
   /**
    * Transforms a response's body by extracting JSONPath and
@@ -61,9 +63,12 @@ class JsonExtractor extends ResponseTransformer {
           val path: String = matched.group(1)
           val toAdd: String = extractValue(requestBody, path) match {
             case None ⇒
-              // since we don't have anything to replace
-              // we will add the raw template to the output body
-              template.take(matched.end)
+              // If there is a default value, use it
+              // else just keep the raw template
+              Option(matched.group(2)) match {
+                case Some(default) ⇒ template.take(matched.start) + default
+                case None          ⇒ template.take(matched.end)
+              }
             case Some(value) ⇒
               // since we got a replacement
               // we will add it to the start of the matched path
@@ -84,7 +89,7 @@ class JsonExtractor extends ResponseTransformer {
     pattern.findFirstMatchIn(template)
 
   /**
-   * Extracts the JSONPath value from the requestBody if any.
+   * Extracts the JSONPath value from the requestBody if any
    */
   private def extractValue(requestBody: Any, path: String): Option[String] = {
     JsonPath

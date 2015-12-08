@@ -18,12 +18,12 @@ class Calculator extends ResponseTransformer {
 
   override val applyGlobally: Boolean = false
 
-  val pattern: Regex = """\$\{([ \d\+\-\*\/\(\)\.]+)}""".r
+  private val pattern: Regex = """\$\{([ \d\+\-\*\/\(\)\.]+)}""".r
 
-  val separator: DecimalFormatSymbols = new DecimalFormatSymbols()
+  private val separator: DecimalFormatSymbols = new DecimalFormatSymbols()
   separator.setDecimalSeparator('.')
 
-  val formatter: DecimalFormat = new DecimalFormat("0.#", separator)
+  private val formatter: DecimalFormat = new DecimalFormat("0.#", separator)
 
   /**
    * Transforms a response's body by evaluating mathematical formulas.
