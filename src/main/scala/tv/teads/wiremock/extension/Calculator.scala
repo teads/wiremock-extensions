@@ -8,6 +8,7 @@ import com.github.tomakehurst.wiremock.extension.ResponseTransformer
 import com.github.tomakehurst.wiremock.http.{ResponseDefinition, Request}
 import net.objecthunter.exp4j.ExpressionBuilder
 
+import scala.annotation.tailrec
 import scala.util.Try
 import scala.util.matching.Regex
 
@@ -24,6 +25,12 @@ class Calculator extends ResponseTransformer {
 
   val formatter: DecimalFormat = new DecimalFormat("0.#", separator)
 
+  /**
+   * Transforms a response's body by evaluating mathematical formulas.
+   *
+   * @param request a JSON request
+   * @param responseDefinition the response to transform
+   */
   override def transform(
     request:            Request,
     responseDefinition: ResponseDefinition,
@@ -37,30 +44,41 @@ class Calculator extends ResponseTransformer {
     }.getOrElse(responseDefinition)
   }
 
-  def replaceCalculus(template: String): String =
-    replaceCalculusRec(template, "")
+  /**
+   * Evaluates all formulas in the template which are encapsulated in ${...}
+   *
+   * @param template the response to transform
+   */
+  private def replaceCalculus(template: String): String = {
 
-  def replaceCalculusRec(template: String, responseBody: String): String = {
-    findFirstCalculus(template) match {
-      case None ⇒ responseBody + template
-      case Some(matched) ⇒
-        val expression: String = matched.group(1)
-        val toAdd: String = Try {
-          val result = BigDecimal {
-            new ExpressionBuilder(expression)
-              .build()
-              .evaluate()
-              .toString
-          }
+    @tailrec
+    def rec(template: String, acc: String): String = {
+      findFirstCalculus(template) match {
+        case None ⇒ acc + template
+        case Some(matched) ⇒
+          val expression: String = matched.group(1)
+          val toAdd: String = Try {
+            val result = BigDecimal {
+              new ExpressionBuilder(expression)
+                .build()
+                .evaluate()
+                .toString
+            }
 
-          template.take(matched.start) + formatter.format(result)
-        }.getOrElse(template.take(matched.end))
+            template.take(matched.start) + formatter.format(result)
+          }.getOrElse(template.take(matched.end))
 
-        replaceCalculusRec(template.drop(matched.end), responseBody + toAdd)
+          rec(template.drop(matched.end), acc + toAdd)
+      }
     }
+
+    rec(template, "")
   }
 
-  def findFirstCalculus(template: String): Option[Regex.Match] =
+  /**
+   * Finds the first mathematical formula in the template.
+   */
+  private def findFirstCalculus(template: String): Option[Regex.Match] =
     pattern.findFirstMatchIn(template)
 
 }

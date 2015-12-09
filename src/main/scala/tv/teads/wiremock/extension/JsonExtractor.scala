@@ -45,47 +45,48 @@ class JsonExtractor extends ResponseTransformer {
   }
 
   /**
-   * Replaces all JSONPath from template by searching values
-   * in the requestBody.
+   * Replaces all JSONPath in the template which are encapsulated in ${...}
+   * by searching values in the requestBody.
    *
    * @param requestBody the JSON used to look for values
    * @param template the response to transform
-   * @return
    */
-  def replacePaths(requestBody: Any, template: String): String =
-    replacePathsRec(requestBody, template, "")
+  private def replacePaths(requestBody: Any, template: String): String = {
 
-  @tailrec
-  private def replacePathsRec(requestBody: Any, template: String, responseBody: String): String = {
-    findFirstPath(template) match {
-      case None ⇒ responseBody + template
-      case Some(matched) ⇒
-        val path: String = matched.group(1)
-        val toAdd: String = extractValue(requestBody, path) match {
-          case None ⇒
-            // since we don't have anything to replace
-            // we will add the raw template to the output body
-            template.take(matched.end)
-          case Some(value) ⇒
-            // since we got a replacement
-            // we will add it to the start of the matched path
-            template.take(matched.start) + value
-        }
+    @tailrec
+    def rec(requestBody: Any, template: String, acc: String): String = {
+      findFirstPath(template) match {
+        case None ⇒ acc + template
+        case Some(matched) ⇒
+          val path: String = matched.group(1)
+          val toAdd: String = extractValue(requestBody, path) match {
+            case None ⇒
+              // since we don't have anything to replace
+              // we will add the raw template to the output body
+              template.take(matched.end)
+            case Some(value) ⇒
+              // since we got a replacement
+              // we will add it to the start of the matched path
+              template.take(matched.start) + value
+          }
 
-        replacePathsRec(requestBody, template.drop(matched.end), responseBody + toAdd)
+          rec(requestBody, template.drop(matched.end), acc + toAdd)
+      }
     }
+
+    rec(requestBody, template, "")
   }
 
   /**
    * Finds the first JSONPath in the template.
    */
-  def findFirstPath(template: String): Option[Regex.Match] =
+  private def findFirstPath(template: String): Option[Regex.Match] =
     pattern.findFirstMatchIn(template)
 
   /**
    * Extracts the JSONPath value from the requestBody if any.
    */
-  def extractValue(requestBody: Any, path: String): Option[String] = {
+  private def extractValue(requestBody: Any, path: String): Option[String] = {
     JsonPath
       .query(path, requestBody)
       .right
