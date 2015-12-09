@@ -20,7 +20,7 @@ The only way is through the WireMock standalone process.
 
 wiremock-json-extractor is a WireMock extension that can generate a response from a JSON request.  
 It recognizes all JSONPaths from the response's template and try to replace them by the correct value
-from the request. You can also specify a default value that will be use if nothing was found when searching
+from the request. You can also specify a fallback value that will be use if nothing was found when searching
 for the JSONPath.
 
 ```
@@ -32,7 +32,7 @@ for the JSONPath.
   "response": {
     "status": 200,
     "body": "I found ${$.value} for $.value. Sadly, I found nothing for ${$.undefined},
-       so I will have to use the default value: ${$.undefined§3}",
+       so I will have to use the fallback value: ${$.undefined§3}",
     "transformers": ["json-extractor"]
   }
 }
@@ -47,7 +47,7 @@ Content-Type: application/json
 ```
 HTTP/1.1 200 OK
 I found 12 for $.value. Sadly, I found nothing for ${$.undefined},
- so I will have to use the default value: 3
+ so I will have to use the fallback value: 3
 ```
 
 You can check every supported operators on the [Gatling JSONPath Syntax](https://github.com/gatling/jsonpath#syntax) documentation.  

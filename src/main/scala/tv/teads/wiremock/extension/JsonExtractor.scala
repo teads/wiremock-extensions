@@ -5,6 +5,7 @@ import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder
 import com.github.tomakehurst.wiremock.common.FileSource
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer
 import com.github.tomakehurst.wiremock.http.{Request, ResponseDefinition}
+import io.gatling.jsonpath.FastStringOps.RichString
 import io.gatling.jsonpath.JsonPath
 
 import scala.annotation.tailrec
@@ -13,13 +14,15 @@ import scala.util.matching.Regex
 
 class JsonExtractor extends ResponseTransformer {
 
+  case class Matched(all: String, path: String, fallback: Option[String])
+
   override val name: String = "json-extractor"
 
   override val applyGlobally: Boolean = false
 
-  private val defaultRegex: Regex = """(?:\§(.+))?""".r
-  private val jsonRegex: Regex = """(\$\.[ ='a-zA-Z0-9\@\.\[\]\*\,\:\?\(\)\&\|\<\>]*)""".r
-  private val pattern: Regex = ("""\$\{""" + jsonRegex + defaultRegex + """\}""").r
+  private val fallbackRegex: Regex = """(?:\§(.+))?""".r
+  private val jsonPathRegex: Regex = """(\$\.[ ='a-zA-Z0-9\@\.\[\]\*\,\:\?\(\)\&\|\<\>]*)""".r
+  private val pattern: Regex = ("""\$\{""" + jsonPathRegex + fallbackRegex + """\}""").r
 
   private val mapper: ObjectMapper = new ObjectMapper
 
@@ -56,26 +59,19 @@ class JsonExtractor extends ResponseTransformer {
   private def replacePaths(requestBody: Any, template: String): String = {
 
     @tailrec
-    def rec(requestBody: Any, template: String, acc: String): String = {
-      findFirstPath(template) match {
-        case None ⇒ acc + template
-        case Some(matched) ⇒
-          val path: String = matched.group(1)
-          val toAdd: String = extractValue(requestBody, path) match {
-            case None ⇒
-              // If there is a default value, use it
-              // else just keep the raw template
-              Option(matched.group(2)) match {
-                case Some(default) ⇒ template.take(matched.start) + default
-                case None          ⇒ template.take(matched.end)
-              }
-            case Some(value) ⇒
-              // since we got a replacement
-              // we will add it to the start of the matched path
-              template.take(matched.start) + value
+    def rec(requestBody: Any, current: String, previous: String): String = {
+      if (current.equals(previous)) previous
+      else {
+        val nextCurrent: String =
+          findAllPaths(current).foldLeft(current) {
+            case (currentAcc, Matched(all, path, fallback)) ⇒
+              extractValue(requestBody, path)
+                .orElse(fallback)
+                .map(currentAcc.fastReplaceAll(all, _))
+                .getOrElse(currentAcc)
           }
 
-          rec(requestBody, template.drop(matched.end), acc + toAdd)
+        rec(requestBody, nextCurrent, current)
       }
     }
 
@@ -83,10 +79,13 @@ class JsonExtractor extends ResponseTransformer {
   }
 
   /**
-   * Finds the first JSONPath in the template.
+   * Finds all JSONPaths in the template.
    */
-  private def findFirstPath(template: String): Option[Regex.Match] =
-    pattern.findFirstMatchIn(template)
+  private def findAllPaths(template: String): Set[Matched] = {
+    pattern.findAllMatchIn(template)
+      .map(matched ⇒ Matched(matched.matched, matched.group(1), Option(matched.group(2))))
+      .toSet
+  }
 
   /**
    * Extracts the JSONPath value from the requestBody if any
