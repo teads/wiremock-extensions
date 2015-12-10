@@ -8,10 +8,10 @@ For now, wiremock-extensions is not published on Maven Central Repository.
 The only way is through the WireMock standalone process.
 
 1. [Download WireMock Jar](https://repo1.maven.org/maven2/com/github/tomakehurst/wiremock/1.58/wiremock-1.58-standalone.jar)
-2. [Download Extension Jar](https://github.com/ebuzzing/wiremock-json-extractor/releases/download/v0.4/wiremock-extensions_2.11-0.4.jar)
+2. [Download Extension Jar](https://github.com/ebuzzing/wiremock-json-extractor/releases/download/v0.5/wiremock-extensions_2.11-0.5.jar)
 3. Run  
 ```
-  java -cp "wiremock-1.58-standalone.jar:wiremock-extensions_2.11-0.4.jar" \
+  java -cp "wiremock-1.58-standalone.jar:wiremock-extensions_2.11-0.5.jar" \
        com.github.tomakehurst.wiremock.standalone.WireMockServerRunner \
        --extensions tv.teads.wiremock.extension.JsonExtractor,tv.teads.wiremock.extension.Calculator
 ```
