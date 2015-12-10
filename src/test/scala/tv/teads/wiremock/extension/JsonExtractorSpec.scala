@@ -10,23 +10,27 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class JsonExtractorSpec extends ExtensionSpec {
 
-  val requests: List[(String, String, String)] = List(
-    ("""{}""", s"$${$$.single}", s"$${$$.single}"), // not found case
-    ("""{"single":"value"}""", s"$$.single", s"$$.single"), // without interpretation
-    ("""{"single":"value"}""", s"$${$$.single}", "value"), // simple case
-    ("""{"nested":{"single":"value"}}""", s"$${$$.nested.single}", "value"), // with nested value
-    ("""{"array":["1","2"]}""", s"$${$$.array[0]}", "1"), // with array
-    ("""{"array":["1","2"]}""", s"$${$$.array[2]}", s"$${$$.array[2]}"), // not found array index
-    ("""{"single":"value","array":["1","2"]}""", s"$${$$.single} $${$$.array[1]}", "value 2"), // with multi replacements
-    ("""{"single":"value"}""", s"$${$$.single} $${$$.single}", "value value"), // with multi same replacements
-    ("""{"single":"value"}""", s"$${$$.single§1}", "value"), // found with default value
-    ("""{}""", s"$${$$.single§1}", "1"), // not found with default value
-    ("""{"array":["1","2"]}""", s"$${$$.array[2]§3}", "3") // not found array index with default value
+  val requests: List[(String, String, String, String)] = List(
+    ("not found", """{}""", s"$${$$.single}", s"$${$$.single}"),
+    ("without interpretation", """{"single":"value"}""", s"""$$.single""", s"$$.single"),
+    ("simple case", """{"single":"value"}""", s"$${$$.single}", "value"),
+    ("nested value", """{"nested":{"single":"value"}}""", s"$${$$.nested.single}", "value"),
+    ("array", """{"array":["1","2"]}""", s"$${$$.array[0]}", "1"),
+    ("not found index", """{"array":["1","2"]}""", s"$${$$.array[2]}", s"$${$$.array[2]}"),
+    ("multi replacements", """{"single":"value","array":["1","2"]}""", s"$${$$.single} $${$$.array[1]}", "value 2"),
+    ("found and fallback", """{"single":"value"}""", s"$${$$.single§1}", "value"),
+    ("not found and fallback", """{}""", s"$${$$.single§1}", "1"),
+    ("array and fallback", """{"array":["1","2"]}""", s"$${$$.array[2]§3}", "3"),
+    ("same replacements", """{"single":"value"}""", s"$${$$.single} $${$$.single}", "value value"),
+    ("mixed found/not found", """{"single":"value"}""", s"$${$$.undefined} $${$$.single}", s"$${$$.undefined} value"),
+    ("nested replacements", s"""{"single":"value", "path":"$$.single"}""", s"$${$${$$.path}}", "value"),
+    ("path as fallback", """{"single":"value"}""", s"$${$$.undefined§$${$$.single}}", "value"),
+    ("multi fallbacks", "{}", s"$${$$.undefined§$${$$.undefined§value}}", "value")
   )
 
   "JsonExtractor" should "replace JSONPath in response body" in {
     requests.foreach {
-      case (requestBody, responseBody, result) ⇒
+      case (clue, requestBody, responseBody, result) ⇒
         val requestUrl = "/" + UUID.randomUUID().toString
 
         wireMockServer.givenThat(
@@ -45,7 +49,7 @@ class JsonExtractorSpec extends ExtensionSpec {
             .setContentType("application/json", "UTF-8"))
 
         whenReady(request) { request ⇒
-          withClue((requestBody, responseBody, result)) {
+          withClue("case [" + clue + "]") {
             request.getResponseBody shouldEqual result
           }
         }
