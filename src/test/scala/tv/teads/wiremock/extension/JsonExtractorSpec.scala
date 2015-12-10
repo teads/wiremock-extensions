@@ -25,7 +25,8 @@ class JsonExtractorSpec extends ExtensionSpec {
     ("mixed found/not found", """{"single":"value"}""", s"$${$$.undefined} $${$$.single}", s"$${$$.undefined} value"),
     ("nested replacements", s"""{"single":"value", "path":"$$.single"}""", s"$${$${$$.path}}", "value"),
     ("path as fallback", """{"single":"value"}""", s"$${$$.undefined§$${$$.single}}", "value"),
-    ("multi fallbacks", "{}", s"$${$$.undefined§$${$$.undefined§value}}", "value")
+    ("multi fallbacks", "{}", s"$${$$.undefined§$${$$.undefined§value}}", "value"),
+    ("complex template", "{}", s"""{"one":"value", "another":"$${$$.undefined§0}", "last": "one"}""", """{"one":"value", "another":"0", "last": "one"}""")
   )
 
   "JsonExtractor" should "replace JSONPath in response body" in {
