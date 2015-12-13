@@ -1,10 +1,11 @@
-package tv.teads.wiremock.extension
+package tv.teads.wiremock.extension.combinations
 
 import java.util.UUID
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.ning.http.client.Response
 import dispatch.{Future, Http, url}
+import tv.teads.wiremock.extension.ExtensionSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
