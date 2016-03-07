@@ -3,9 +3,11 @@ organization    := "tv.teads"
 scalaVersion    := "2.11.7"
 scalacOptions   := Seq("-feature", "-deprecation", "-Xlint")
 
+resolvers += Resolver.sonatypeRepo("snapshots")
+
 libraryDependencies ++= Seq(
   "com.github.tomakehurst"      % "wiremock"         % "1.58" % "provided",
-  "io.gatling"                 %% "jsonpath"         % "0.6.4",
+  "io.gatling"                  % "jsonpath"         % "0.6.5-20151211.195536-26",
   "com.fasterxml.jackson.core"  % "jackson-databind" % "2.6.3",
   "net.objecthunter"            % "exp4j"            % "0.4.5",
 

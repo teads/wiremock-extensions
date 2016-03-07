@@ -31,8 +31,9 @@ for the JSONPath.
   },
   "response": {
     "status": 200,
-    "body": "I found ${$.value} for $.value. Sadly, I found nothing for ${$.undefined},
-       so I will have to use the fallback value: ${$.undefined§3}",
+    "body": "
+      I found ${$.value} for $.value. Sadly, I found nothing for ${$.undefined},
+      so I will have to use the fallback value: ${$.undefined|3}",
     "transformers": ["json-extractor"]
   }
 }
@@ -46,8 +47,8 @@ Content-Type: application/json
 
 ```
 HTTP/1.1 200 OK
-I found 12 for $.value. Sadly, I found nothing for ${$.undefined},
- so I will have to use the fallback value: 3
+I found 12 for $.value. Sadly, I found nothing for null,
+so I will have to use the fallback value: 3
 ```
 
 You can check every supported operators on the [Gatling JSONPath Syntax](https://github.com/gatling/jsonpath#syntax) documentation.  

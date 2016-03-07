@@ -1,11 +1,11 @@
-package tv.teads.wiremock.extension
+package tv.teads.wiremock.extension.calculator
 
-import java.text.{DecimalFormatSymbols, DecimalFormat}
+import java.text.{DecimalFormat, DecimalFormatSymbols}
 
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder
 import com.github.tomakehurst.wiremock.common.FileSource
 import com.github.tomakehurst.wiremock.extension.ResponseTransformer
-import com.github.tomakehurst.wiremock.http.{ResponseDefinition, Request}
+import com.github.tomakehurst.wiremock.http.{Request, ResponseDefinition}
 import net.objecthunter.exp4j.ExpressionBuilder
 
 import scala.annotation.tailrec
