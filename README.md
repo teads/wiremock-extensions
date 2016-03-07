@@ -1,4 +1,4 @@
-# WireMock Extensions [![Build Status](https://jenkins.teads.net/buildStatus/icon?job=wiremock-json-extractor_master)](https://jenkins.teads.net/job/wiremock-json-extractor_master/)
+# WireMock Extensions [![Build Status](https://travis-ci.org/teads/wiremock-extensions.svg?branch=master)](https://travis-ci.org/teads/wiremock-extensions)
 
 wiremock-extensions is a set of extensions for WireMock.
 
