@@ -21,7 +21,7 @@ class JsonExtractor extends ResponseTransformer {
   override val applyGlobally: Boolean = false
 
   private val fallbackRegex: Regex = """(?:\§(.+?))?""".r
-  private val jsonPathRegex: Regex = """(\$\.[ ='a-zA-Z0-9\@\.\[\]\*\,\:\?\(\)\&\|\<\>]*)""".r
+  private val jsonPathRegex: Regex = """(\$\.[ _='a-zA-Z0-9\@\.\[\]\*\,\:\?\(\)\&\|\<\>]*)""".r
   private val pattern: Regex = ("""\$\{""" + jsonPathRegex + fallbackRegex + """\}""").r
 
   private val mapper: ObjectMapper = new ObjectMapper
