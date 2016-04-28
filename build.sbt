@@ -1,6 +1,6 @@
 name            := "wiremock-extensions"
 organization    := "tv.teads"
-scalaVersion    := "2.11.7"
+scalaVersion    := "2.11.8"
 scalacOptions   := Seq("-feature", "-deprecation", "-Xlint")
 
 libraryDependencies ++= Seq(
