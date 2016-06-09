@@ -1,18 +1,18 @@
 package tv.teads.wiremock.extension
 
-import java.text.{DecimalFormatSymbols, DecimalFormat}
+import java.text.{DecimalFormat, DecimalFormatSymbols}
 
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder
 import com.github.tomakehurst.wiremock.common.FileSource
-import com.github.tomakehurst.wiremock.extension.ResponseTransformer
-import com.github.tomakehurst.wiremock.http.{ResponseDefinition, Request}
+import com.github.tomakehurst.wiremock.extension.{Parameters, ResponseDefinitionTransformer}
+import com.github.tomakehurst.wiremock.http.{Request, ResponseDefinition}
 import net.objecthunter.exp4j.ExpressionBuilder
 
 import scala.annotation.tailrec
 import scala.util.Try
 import scala.util.matching.Regex
 
-class Calculator extends ResponseTransformer {
+class Calculator extends ResponseDefinitionTransformer {
 
   override val name: String = "calculator"
 
@@ -28,13 +28,14 @@ class Calculator extends ResponseTransformer {
   /**
    * Transforms a response's body by evaluating mathematical formulas.
    *
-   * @param request a JSON request
+   * @param request            a JSON request
    * @param responseDefinition the response to transform
    */
   override def transform(
     request:            Request,
     responseDefinition: ResponseDefinition,
-    files:              FileSource
+    files:              FileSource,
+    parameters:         Parameters
   ): ResponseDefinition = {
     Try {
       ResponseDefinitionBuilder

@@ -2,7 +2,6 @@ package tv.teads.wiremock.extension
 
 import java.util.UUID
 
-import com.github.tomakehurst.wiremock.client.WireMock._
 import com.ning.http.client.Response
 import dispatch.{Future, Http, url}
 
@@ -26,24 +25,15 @@ class CalculatorSpec extends ExtensionSpec {
       case (responseBody, result) ⇒
         val requestUrl = "/" + UUID.randomUUID().toString
 
-        wireMockServer.givenThat(
-          get(urlEqualTo(requestUrl))
-            .willReturn(
-              aResponse()
-                .withHeader("Content-Type", "text/plain")
-                .withBody(responseBody)
-                .withTransformers("calculator")
-            )
+        StubHelper.stub(wireMockServer, requestUrl, responseBody, "calculator")
+
+        val request: Future[Response] = Http(url(wireMockUrl + requestUrl))
+
+        validate(
+          request = request,
+          result = result,
+          clue = responseBody, result
         )
-
-        val request: Future[Response] =
-          Http(url(wireMockUrl + requestUrl))
-
-        whenReady(request) { request ⇒
-          withClue((responseBody, result)) {
-            request.getResponseBody shouldEqual result
-          }
-        }
     }
   }
 

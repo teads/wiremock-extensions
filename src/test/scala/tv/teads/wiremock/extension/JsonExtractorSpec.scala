@@ -2,7 +2,6 @@ package tv.teads.wiremock.extension
 
 import java.util.UUID
 
-import com.github.tomakehurst.wiremock.client.WireMock._
 import com.ning.http.client.Response
 import dispatch.{Future, Http, url}
 
@@ -35,26 +34,18 @@ class JsonExtractorSpec extends ExtensionSpec {
       case (clue, requestBody, responseBody, result) ⇒
         val requestUrl = "/" + UUID.randomUUID().toString
 
-        wireMockServer.givenThat(
-          post(urlEqualTo(requestUrl))
-            .willReturn(
-              aResponse()
-                .withHeader("Content-Type", "text/plain")
-                .withBody(responseBody)
-                .withTransformers("json-extractor")
-            )
-        )
+        StubHelper.stub(wireMockServer, requestUrl, responseBody, "json-extractor")
 
         val request: Future[Response] =
           Http(url(wireMockUrl + requestUrl)
             .<<(requestBody)
             .setContentType("application/json", "UTF-8"))
 
-        whenReady(request) { request ⇒
-          withClue("case [" + clue + "]") {
-            request.getResponseBody shouldEqual result
-          }
-        }
+        validate(
+          request = request,
+          result = result,
+          clue = "case [" + clue + "]"
+        )
     }
   }
 
