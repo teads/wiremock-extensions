@@ -34,18 +34,18 @@ class JsonExtractorSpec extends ExtensionSpec {
       case (clue, requestBody, responseBody, result) ⇒
         val requestUrl = "/" + UUID.randomUUID().toString
 
-        StubHelper.stub(wireMockServer, requestUrl, responseBody, "json-extractor")
+        stub("POST", requestUrl, responseBody, "json-extractor") {
+          val request: Future[Response] =
+            Http(url(wireMockUrl + requestUrl)
+              .<<(requestBody)
+              .setContentType("application/json", "UTF-8"))
 
-        val request: Future[Response] =
-          Http(url(wireMockUrl + requestUrl)
-            .<<(requestBody)
-            .setContentType("application/json", "UTF-8"))
-
-        validate(
-          request = request,
-          result = result,
-          clue = "case [" + clue + "]"
-        )
+          validate(
+            request = request,
+            result = result,
+            clue = "case [" + clue + "]"
+          )
+        }
     }
   }
 

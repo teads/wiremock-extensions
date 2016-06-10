@@ -25,15 +25,15 @@ class CalculatorSpec extends ExtensionSpec {
       case (responseBody, result) ⇒
         val requestUrl = "/" + UUID.randomUUID().toString
 
-        StubHelper.stub(wireMockServer, requestUrl, responseBody, "calculator")
+        stub("GET", requestUrl, responseBody, "calculator") {
+          val request: Future[Response] = Http(url(wireMockUrl + requestUrl))
 
-        val request: Future[Response] = Http(url(wireMockUrl + requestUrl))
-
-        validate(
-          request = request,
-          result = result,
-          clue = responseBody, result
-        )
+          validate(
+            request = request,
+            result = result,
+            clue = responseBody, result
+          )
+        }
     }
   }
 
