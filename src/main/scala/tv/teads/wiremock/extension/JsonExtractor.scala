@@ -3,7 +3,7 @@ package tv.teads.wiremock.extension
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder
 import com.github.tomakehurst.wiremock.common.FileSource
-import com.github.tomakehurst.wiremock.extension.ResponseTransformer
+import com.github.tomakehurst.wiremock.extension.{Parameters, ResponseDefinitionTransformer}
 import com.github.tomakehurst.wiremock.http.{Request, ResponseDefinition}
 import io.gatling.jsonpath.FastStringOps.RichString
 import io.gatling.jsonpath.JsonPath
@@ -12,7 +12,7 @@ import scala.annotation.tailrec
 import scala.util.Try
 import scala.util.matching.Regex
 
-class JsonExtractor extends ResponseTransformer {
+class JsonExtractor extends ResponseDefinitionTransformer {
 
   case class Matched(all: String, path: String, fallback: Option[String])
 
@@ -30,13 +30,14 @@ class JsonExtractor extends ResponseTransformer {
    * Transforms a response's body by extracting JSONPath and
    * replace them from the request.
    *
-   * @param request a JSON request
+   * @param request            a JSON request
    * @param responseDefinition the response to transform
    */
   override def transform(
     request:            Request,
     responseDefinition: ResponseDefinition,
-    files:              FileSource
+    files:              FileSource,
+    parameters:         Parameters
   ): ResponseDefinition = {
     Try {
       val requestBody = mapper.readValue(request.getBodyAsString, classOf[Object])
@@ -54,7 +55,7 @@ class JsonExtractor extends ResponseTransformer {
    * by searching values in the requestBody.
    *
    * @param requestBody the JSON used to look for values
-   * @param template the response to transform
+   * @param template    the response to transform
    */
   private def replacePaths(requestBody: Any, template: String): String = {
 
