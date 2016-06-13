@@ -20,18 +20,18 @@ class CombinationsSpec extends ExtensionSpec {
       case (requestBody, responseBody, result) ⇒
         val requestUrl = "/" + UUID.randomUUID().toString
 
-        StubHelper.stub(wireMockServer, requestUrl, responseBody, "json-extractor", "calculator")
+        stub("POST", requestUrl, responseBody, "json-extractor", "calculator") {
+          val request: Future[Response] =
+            Http(url(wireMockUrl + requestUrl)
+              .<<(requestBody)
+              .setContentType("application/json", "UTF-8"))
 
-        val request: Future[Response] =
-          Http(url(wireMockUrl + requestUrl)
-            .<<(requestBody)
-            .setContentType("application/json", "UTF-8"))
-
-        validate(
-          request = request,
-          result = result,
-          clue = requestBody, responseBody, result
-        )
+          validate(
+            request = request,
+            result = result,
+            clue = requestBody, responseBody, result
+          )
+        }
     }
   }
 
