@@ -14,7 +14,7 @@ import scala.util.matching.Regex
 
 class Calculator extends ResponseDefinitionTransformer {
 
-  override val name: String = "calculator"
+  override val getName: String = "calculator"
 
   override val applyGlobally: Boolean = false
 
