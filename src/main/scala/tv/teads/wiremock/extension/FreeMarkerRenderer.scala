@@ -14,7 +14,7 @@ import scala.util.Try
 
 class FreeMarkerRenderer extends ResponseDefinitionTransformer {
 
-  override val name: String = "freemarker-renderer"
+  override val getName: String = "freemarker-renderer"
 
   override val applyGlobally: Boolean = false
 

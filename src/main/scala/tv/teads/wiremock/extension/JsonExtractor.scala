@@ -16,7 +16,7 @@ class JsonExtractor extends ResponseDefinitionTransformer {
 
   case class Matched(all: String, path: String, fallback: Option[String])
 
-  override val name: String = "json-extractor"
+  override val getName: String = "json-extractor"
 
   override val applyGlobally: Boolean = false
 
