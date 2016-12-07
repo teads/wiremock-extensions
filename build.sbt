@@ -4,7 +4,7 @@ scalaVersion    := "2.11.8"
 scalacOptions   := Seq("-feature", "-deprecation", "-Xlint")
 
 libraryDependencies ++= Seq(
-  "com.github.tomakehurst"     % "wiremock-standalone" % "2.1.4-rc3" % "provided",
+  "com.github.tomakehurst"     % "wiremock-standalone" % "2.4.1" % "provided",
   "io.gatling"                %% "jsonpath"            % "0.6.4",
   "com.fasterxml.jackson.core" % "jackson-databind"    % "2.6.3",
   "net.objecthunter"           % "exp4j"               % "0.4.5",
