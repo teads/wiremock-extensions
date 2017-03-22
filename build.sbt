@@ -4,14 +4,14 @@ scalaVersion    := "2.11.8"
 scalacOptions   := Seq("-feature", "-deprecation", "-Xlint")
 
 libraryDependencies ++= Seq(
-  "com.github.tomakehurst"     % "wiremock-standalone" % "2.4.1" % "provided",
-  "io.gatling"                %% "jsonpath"            % "0.6.4",
-  "com.fasterxml.jackson.core" % "jackson-databind"    % "2.6.3",
-  "net.objecthunter"           % "exp4j"               % "0.4.5",
-  "org.freemarker"             % "freemarker"          % "2.3.24-incubating",
+  "com.github.tomakehurst"     % "wiremock-standalone" % "2.5.1" % "provided",
+  "io.gatling"                %% "jsonpath"            % "0.6.9",
+  "com.fasterxml.jackson.core" % "jackson-databind"    % "2.8.7",
+  "net.objecthunter"           % "exp4j"               % "0.4.8",
+  "org.freemarker"             % "freemarker"          % "2.3.25-incubating",
 
-  "org.scalatest"           %% "scalatest"     % "2.2.5"  % "test",
-  "net.databinder.dispatch" %% "dispatch-core" % "0.11.2" % "test"
+  "org.scalatest"           %% "scalatest"     % "2.2.6"  % "test",
+  "net.databinder.dispatch" %% "dispatch-core" % "0.12.0" % "test"
 )
 
 fork in Test := true
