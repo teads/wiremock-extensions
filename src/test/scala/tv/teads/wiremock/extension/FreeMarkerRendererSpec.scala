@@ -12,6 +12,7 @@ class FreeMarkerRendererSpec extends ExtensionSpec {
   val requests: List[(String, String, String, String)] = List(
     ("simple case", """{"single":"value"}""", s"$${$$.single}", "value"),
     ("fallback", """{}""", s"$${$$.single!1}", "1"),
+    ("fallback for null nested path", """{}""", s"$${($$.single.value)!1}", "1"),
     ("arithmetic", s"""{"value":3}""", s"$${$$.value + 3}", "6"),
     ("path as fallback", """{"single":"value"}""", s"$${$$.undefined!$$.single}", "value"),
     ("multi fallbacks", "{}", s"""$${$$.undefined!$$.undefined!"value"}""", "value"),
