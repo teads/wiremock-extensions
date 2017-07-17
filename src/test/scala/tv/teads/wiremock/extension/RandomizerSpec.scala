@@ -11,13 +11,13 @@ import scala.util.matching.Regex
 class RandomizerSpec extends ExtensionSpec {
 
   val requests: List[(String, Regex)] = List(
-    (s"$${RandomInteger}", """^\d*$""".r),
-    (s"$${RandomLong}", """^\d*$""".r),
-    (s"$${RandomString}", """^\w{10}$""".r),
-    (s"$${RandomBoolean}", """^(true|false)$""".r),
-    (s"$${RandomDouble}", """^(0(\.\d+)?|1(\.0+)?)$""".r),
-    (s"$${RandomFloat}", """^(0(\.\d+)?|1(\.0+)?)$""".r),
-    (s"$${RandomNotFound}", """\$\{RandomNotFound\}""".r)
+    ("@{RandomInteger}", """^\d*$""".r),
+    ("@{RandomLong}", """^\d*$""".r),
+    ("@{RandomString}", """^\w{10}$""".r),
+    ("@{RandomBoolean}", """^(true|false)$""".r),
+    ("@{RandomDouble}", """^(0(\.\d+)?|1(\.0+)?)$""".r),
+    ("@{RandomFloat}", """^(0(\.\d+)?|1(\.0+)?)$""".r),
+    ("@{RandomNotFound}", """\@\{RandomNotFound\}""".r)
   )
 
   "Randomizer" should "replace random placeholders in response body" in {
