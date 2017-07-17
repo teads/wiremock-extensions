@@ -7,6 +7,7 @@ import org.scalatest.time._
 import org.scalatest.{BeforeAndAfterAll, FlatSpec, Matchers}
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.matching.Regex
 
 trait ExtensionSpec extends FlatSpec with Matchers with BeforeAndAfterAll with ScalaFutures {
 
@@ -59,6 +60,14 @@ trait ExtensionSpec extends FlatSpec with Matchers with BeforeAndAfterAll with S
     whenReady(request) { response ⇒
       withClue(clue.mkString("`", "` | `", "`")) {
         response.getResponseBody shouldEqual result
+      }
+    }
+  }
+
+  def validate(request: Future[Response], result: Regex, clue: Any*) = {
+    whenReady(request) { response ⇒
+      withClue(clue.mkString("`", "` | `", "`")) {
+        response.getResponseBody should fullyMatch regex result
       }
     }
   }

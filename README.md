@@ -13,7 +13,7 @@ The only way is through the WireMock standalone process.
 ```
   java -cp "wiremock-standalone-2.4.1.jar:wiremock-extensions_2.11-0.10.jar" \
        com.github.tomakehurst.wiremock.standalone.WireMockServerRunner \
-       --extensions tv.teads.wiremock.extension.JsonExtractor,tv.teads.wiremock.extension.Calculator,tv.teads.wiremock.extension.FreeMarkerRenderer
+       --extensions tv.teads.wiremock.extension.JsonExtractor,tv.teads.wiremock.extension.Calculator,tv.teads.wiremock.extension.FreeMarkerRenderer,tv.teads.wiremock.extension.Randomizer
 ```
 
 ## WireMock JSON Extractor
@@ -75,6 +75,38 @@ GET /some/url HTTP/1.1
 ```
 HTTP/1.1 200 OK
 What is the value of 1+2*3? Simple, it is: 7
+```
+
+## WireMock Randomizer
+Random generators supported:
+ * RandomInteger: integer values from 0 to Integer.MAX_VALUE
+ * RandomDouble: double values from 0.0 to 1.0
+ * RandomBoolean: true or false values
+ * RandomFloat: float values from 0.0 to 1.0
+ * RandomLong: absolute long values
+ * RandomString: string of 10 characters
+ 
+```
+{
+  "request": {
+    "method": "GET",
+    "url": "/some/url"
+  },
+  "response": {
+    "status": 200,
+    "body": "Random integer generated: ${RandomInteger}",
+    "transformers": ["randomizer"]
+  }
+}
+```
+
+```
+GET /some/url HTTP/1.1
+```
+
+```
+HTTP/1.1 200 OK
+Random integer generated: 784129741
 ```
 
 
