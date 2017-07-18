@@ -15,7 +15,7 @@ class Randomizer extends ResponseDefinitionTransformer {
 
   override val applyGlobally: Boolean = false
 
-  private val randomPattern: Regex = """\$\{([Random\w]+)}""".r
+  private val randomPattern: Regex = """\@\{([Random\w]+)}""".r
 
   /**
    * Transforms a response's body by generating random values.
@@ -36,7 +36,7 @@ class Randomizer extends ResponseDefinitionTransformer {
   }.getOrElse(responseDefinition)
 
   /**
-   * Evaluates all random placeholders in the template which are encapsulated in ${RandomXXX}
+   * Evaluates all random placeholders in the template which are encapsulated in @{RandomXXX}
    *
    * @param template the response to transform
    */

@@ -94,7 +94,7 @@ Random generators supported:
   },
   "response": {
     "status": 200,
-    "body": "Random integer generated: ${RandomInteger}",
+    "body": "Random integer generated: @{RandomInteger}",
     "transformers": ["randomizer"]
   }
 }
