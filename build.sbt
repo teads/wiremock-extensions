@@ -4,11 +4,11 @@ scalaVersion    := "2.11.8"
 scalacOptions   := Seq("-feature", "-deprecation", "-Xlint")
 
 libraryDependencies ++= Seq(
-  "com.github.tomakehurst"     % "wiremock-standalone" % "2.5.1" % "provided",
+  "com.github.tomakehurst"     % "wiremock-standalone" % "2.8.0" % "provided",
   "io.gatling"                %% "jsonpath"            % "0.6.9",
-  "com.fasterxml.jackson.core" % "jackson-databind"    % "2.8.7",
+  "com.fasterxml.jackson.core" % "jackson-databind"    % "2.9.1",
   "net.objecthunter"           % "exp4j"               % "0.4.8",
-  "org.freemarker"             % "freemarker"          % "2.3.25-incubating",
+  "org.freemarker"             % "freemarker"          % "2.3.26-incubating",
 
   "org.scalatest"           %% "scalatest"     % "2.2.6"  % "test",
   "net.databinder.dispatch" %% "dispatch-core" % "0.12.0" % "test"
