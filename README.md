@@ -85,6 +85,7 @@ Random generators supported:
  * RandomFloat: float values from 0.0 to 1.0
  * RandomLong: absolute long values
  * RandomString: string of 10 characters
+ * RandomUUID: random UUID
  
 ```
 {
