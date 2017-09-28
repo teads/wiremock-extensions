@@ -1,5 +1,7 @@
 package tv.teads.wiremock.extension
 
+import java.util.UUID
+
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder
 import com.github.tomakehurst.wiremock.common.FileSource
 import com.github.tomakehurst.wiremock.extension.{Parameters, ResponseDefinitionTransformer}
@@ -55,6 +57,7 @@ class Randomizer extends ResponseDefinitionTransformer {
             case "RandomFloat"   ⇒ String.valueOf(new Random().nextFloat())
             case "RandomLong"    ⇒ String.valueOf(Math.abs(new Random().nextLong()))
             case "RandomString"  ⇒ Random.alphanumeric.take(10).mkString
+            case "RandomUUID"    ⇒ UUID.randomUUID().toString
             case _               ⇒ acc + template
           }
           val toAdd: String = template.take(matched.start) + result

@@ -17,6 +17,7 @@ class RandomizerSpec extends ExtensionSpec {
     ("@{RandomBoolean}", """^(true|false)$""".r),
     ("@{RandomDouble}", """^(0(\.\d+)?|1(\.0+)?)$""".r),
     ("@{RandomFloat}", """^(0(\.\d+)?|1(\.0+)?)$""".r),
+    ("@{RandomUUID}", """^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$""".r),
     ("@{RandomNotFound}", """\@\{RandomNotFound\}""".r)
   )
 
