@@ -32,7 +32,6 @@ class FreeMarkerRenderer extends ResponseDefinitionTransformer {
   ): ResponseDefinition = {
     Try {
       val requestBody: JsonNode = mapper.readTree(request.getBodyAsString)
-
       val template = new Template("template", new StringReader(responseDefinition.getBody), configuration)
 
       val writer = new StringWriter
@@ -91,34 +90,37 @@ class FreeMarkerRenderer extends ResponseDefinitionTransformer {
       val childNodes = fullPath.split('.')
       if (childNodes.length == 1)
         parent.findPath(fullPath)
-      else findChildNode(parent.findPath(childNodes.head), childNodes.tail.mkString("."))
+      else
+        findChildNode(parent.findPath(childNodes.head), childNodes.tail.mkString("."))
     }
 
     private def extractPathAndValueFromCondition(filteredChildCondition: String): (String, String) = {
-      val splitFilteredChildCondition = filteredChildCondition.split("==").map(_.trim)
-      if (splitFilteredChildCondition.length != 2) throw new TemplateModelException("Filtered child condition should be like this : car.color == red")
-      (splitFilteredChildCondition(0), splitFilteredChildCondition(1))
+      filteredChildCondition.split("==").map(_.trim).toList match {
+        case path :: value :: Nil ⇒ (path, value)
+        case _                    ⇒ throw new TemplateModelException("Filtered child condition should be like this : car.color == red")
+      }
     }
 
     override def exec(arguments: util.List[_]): SimpleScalar = {
       if (arguments.size() != 3) {
-        throw new TemplateModelException("Wrong arguments : 3 expected : array node, filtered child condition, wanted node )")
+        throw new TemplateModelException("Wrong arguments : 3 expected : array node, filtered child condition, wanted node")
       }
-      arguments.asScala.toList match {
-        case List(a1: SimpleScalar, a2: SimpleScalar, a3: SimpleScalar) ⇒
-          val (array, filteredChildCondition, wantedChildPath) = (a1.getAsString, a2.getAsString, a3.getAsString)
+      arguments.asScala.toList.collect { case s: SimpleScalar ⇒ s.getAsString } match {
+        case List(a1: String, a2: String, a3: String) ⇒
+          val (array, filteredChildCondition, wantedChildPath) = (a1, a2, a3)
           val arrayNode = requestBody.findPath(array)
-          if (!arrayNode.isArray) throw new TemplateModelException("First arg should be an array node")
+
+          if (!arrayNode.isArray)
+            throw new TemplateModelException("First arg should be an array node")
+
           val (filteredChildPath, filteredChildValue) = extractPathAndValueFromCondition(filteredChildCondition)
-          arrayNode.elements().asScala.toList.flatMap { parentNode ⇒
-            val filteredChild = findChildNode(parentNode, filteredChildPath)
-            if (filteredChild.textValue() == filteredChildValue) {
-              Some(findChildNode(parentNode, wantedChildPath).textValue())
-            } else None
-          }.headOption match {
-            case Some(wantedNodeValue) ⇒ new SimpleScalar(wantedNodeValue)
-            case _                     ⇒ throw new TemplateModelException(s"Value $filteredChildValue not found for field $filteredChildPath on $array array")
-          }
+
+          arrayNode.elements().asScala
+            .find(findChildNode(_, filteredChildPath).textValue() == filteredChildValue)
+            .map(findChildNode(_, wantedChildPath).textValue()) match {
+              case Some(wantedNodeValue) ⇒ new SimpleScalar(wantedNodeValue)
+              case _                     ⇒ throw new TemplateModelException(s"Value $filteredChildValue not found for field $filteredChildPath on $array array")
+            }
         case _ ⇒ throw new TemplateModelException("Invalid arguments types")
       }
     }
