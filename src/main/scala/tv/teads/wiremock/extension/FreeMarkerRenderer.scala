@@ -1,6 +1,7 @@
 package tv.teads.wiremock.extension
 
 import java.io.{StringReader, StringWriter}
+import java.util
 
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder
@@ -9,6 +10,7 @@ import com.github.tomakehurst.wiremock.extension.{Parameters, ResponseDefinition
 import com.github.tomakehurst.wiremock.http.{Request, ResponseDefinition}
 import freemarker.template.{Configuration, _}
 
+import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import scala.util.Try
 
@@ -47,6 +49,7 @@ class FreeMarkerRenderer extends ResponseDefinitionTransformer {
   private def json2hash(wrapper: ObjectWrapper, node: JsonNode): SimpleHash = {
     val hash = new SimpleHash(wrapper)
     hash.put("$", json2template(wrapper, node))
+    hash.put("findFirstStringInArray", new FindFirstStringInArray(node))
     hash
   }
 
@@ -79,4 +82,47 @@ class FreeMarkerRenderer extends ResponseDefinitionTransformer {
       hash
   }
 
+  class FindFirstStringInArray(requestBody: JsonNode) extends TemplateMethodModelEx {
+    import freemarker.template.TemplateModelException
+
+    @tailrec
+    private def findChildNode(parent: JsonNode, fullPath: String): JsonNode = {
+      val childNodes = fullPath.split('.')
+      if (childNodes.length == 1)
+        parent.findPath(fullPath)
+      else
+        findChildNode(parent.findPath(childNodes.head), childNodes.tail.mkString("."))
+    }
+
+    private def extractPathAndValueFromCondition(filteredChildCondition: String): (String, String) = {
+      filteredChildCondition.split("==").map(_.trim).toList match {
+        case path :: value :: Nil ⇒ (path, value)
+        case _                    ⇒ throw new TemplateModelException("Filtered child condition should be like this : car.color == red")
+      }
+    }
+
+    override def exec(arguments: util.List[_]): SimpleScalar = {
+      if (arguments.size() != 3) {
+        throw new TemplateModelException("Wrong arguments : 3 expected : array node, filtered child condition, wanted node")
+      }
+      arguments.asScala.toList.collect { case s: SimpleScalar ⇒ s.getAsString } match {
+        case List(a1: String, a2: String, a3: String) ⇒
+          val (array, filteredChildCondition, wantedChildPath) = (a1, a2, a3)
+          val arrayNode = requestBody.findPath(array)
+
+          if (!arrayNode.isArray)
+            throw new TemplateModelException("First arg should be an array node")
+
+          val (filteredChildPath, filteredChildValue) = extractPathAndValueFromCondition(filteredChildCondition)
+
+          arrayNode.elements().asScala
+            .find(findChildNode(_, filteredChildPath).textValue() == filteredChildValue)
+            .map(findChildNode(_, wantedChildPath).textValue()) match {
+              case Some(wantedNodeValue) ⇒ new SimpleScalar(wantedNodeValue)
+              case _                     ⇒ throw new TemplateModelException(s"Value $filteredChildValue not found for field $filteredChildPath on $array array")
+            }
+        case _ ⇒ throw new TemplateModelException("Invalid arguments types")
+      }
+    }
+  }
 }
