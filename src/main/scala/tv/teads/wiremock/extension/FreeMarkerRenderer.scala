@@ -3,6 +3,7 @@ package tv.teads.wiremock.extension
 import java.io.{StringReader, StringWriter}
 import java.util
 
+import com.fasterxml.jackson.databind.node.JsonNodeType
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder
 import com.github.tomakehurst.wiremock.common.FileSource
@@ -49,7 +50,7 @@ class FreeMarkerRenderer extends ResponseDefinitionTransformer {
   private def json2hash(wrapper: ObjectWrapper, node: JsonNode): SimpleHash = {
     val hash = new SimpleHash(wrapper)
     hash.put("$", json2template(wrapper, node))
-    hash.put("findFirstStringInArray", new FindFirstStringInArray(node))
+    hash.put("findFirstInArray", new FindFirstInArray(node))
     hash
   }
 
@@ -82,7 +83,7 @@ class FreeMarkerRenderer extends ResponseDefinitionTransformer {
       hash
   }
 
-  class FindFirstStringInArray(requestBody: JsonNode) extends TemplateMethodModelEx {
+  class FindFirstInArray(requestBody: JsonNode) extends TemplateMethodModelEx {
     import freemarker.template.TemplateModelException
 
     @tailrec
@@ -101,7 +102,7 @@ class FreeMarkerRenderer extends ResponseDefinitionTransformer {
       }
     }
 
-    override def exec(arguments: util.List[_]): SimpleScalar = {
+    override def exec(arguments: util.List[_]): TemplateModel = {
       if (arguments.size() != 3) {
         throw new TemplateModelException("Wrong arguments : 3 expected : array node, filtered child condition, wanted node")
       }
@@ -117,9 +118,9 @@ class FreeMarkerRenderer extends ResponseDefinitionTransformer {
 
           arrayNode.elements().asScala
             .find(findChildNode(_, filteredChildPath).textValue() == filteredChildValue)
-            .map(findChildNode(_, wantedChildPath).textValue()) match {
-              case Some(wantedNodeValue) ⇒ new SimpleScalar(wantedNodeValue)
-              case _                     ⇒ throw new TemplateModelException(s"Value $filteredChildValue not found for field $filteredChildPath on $array array")
+            .map(findChildNode(_, wantedChildPath)) match {
+              case Some(wantedNode) ⇒ json2template(wrapper, wantedNode)
+              case _                ⇒ throw new TemplateModelException(s"Value $filteredChildValue not found for field $filteredChildPath on $array array")
             }
         case _ ⇒ throw new TemplateModelException("Invalid arguments types")
       }

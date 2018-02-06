@@ -18,8 +18,8 @@ class FreeMarkerRendererSpec extends ExtensionSpec {
     ("multi fallbacks", "{}", s"""$${$$.undefined!$$.undefined!"value"}""", "value"),
     ("array traversal", """{"array":["1","2"]}""", s"""[#ftl][#list $$.array as i]$${i}[/#list]""", """12"""),
     ("array glue", """{"array":["1","2"]}""", s"""$${$$.array?join(",")}""", """1,2"""),
-    ("array find first string", """{"cars":[{"details":{"brand":"lexus","color":"black"}},{"details":{"brand":"citroen","color":"red"}}]}""",
-      s"""$${findFirstStringInArray("cars", "details.color == black", "details.brand")}""", """lexus"""),
+    ("array find first", """{"cheap-cars":[{"details":{"price":15.5, "brand":"toyota"}},{"details":{"price":10,"brand":"lexus"}}]}""",
+      s"""$${findFirstInArray('cheap-cars', 'details.brand == toyota', 'details.price')?c}""", """15.5"""),
     ("underscore", """{"_single":"value"}""", s"""{"single":"$${$$._single}"}""", """{"single":"value"}""")
   )
 
