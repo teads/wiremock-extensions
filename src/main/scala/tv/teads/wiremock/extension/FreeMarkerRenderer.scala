@@ -98,8 +98,8 @@ class FreeMarkerRenderer extends ResponseDefinitionTransformer {
         val node = parent.findPath(parsedChildPath)
         val newParentNode = if (node.isArray) {
           (for {
-            arrayIndex <- Try(childPath.substring(arrayStartIndex+1, childPath.indexOf("]")).toInt).toOption
-            element <- Try(node.elements().asScala.toList(arrayIndex)).toOption
+            arrayIndex ← Try(childPath.substring(arrayStartIndex + 1, childPath.indexOf("]")).toInt).toOption
+            element ← Try(node.elements().asScala.toList(arrayIndex)).toOption
           } yield element).getOrElse(mapper.createObjectNode().nullNode())
         } else node
         findChildNode(newParentNode, childNodes.tail.mkString("."))
