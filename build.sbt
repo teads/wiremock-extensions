@@ -18,7 +18,7 @@ fork in Test := true
 
 // Release Settings
 
-def teadsRepo(repo: String) = repo at s"http://nexus.teads.net/content/repositories/$repo"
+def teadsRepo(repo: String) = repo at s"https://nexus.teads.net/content/repositories/$repo"
 
 publishMavenStyle     := true
 pomIncludeRepository  := { _ => false }
