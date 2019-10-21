@@ -13,7 +13,7 @@ import freemarker.template.{Configuration, _}
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 class FreeMarkerRenderer extends ResponseDefinitionTransformer {
 
@@ -91,8 +91,19 @@ class FreeMarkerRenderer extends ResponseDefinitionTransformer {
       val childNodes = fullPath.split('.')
       if (childNodes.length == 1)
         parent.findPath(fullPath)
-      else
-        findChildNode(parent.findPath(childNodes.head), childNodes.tail.mkString("."))
+      else {
+        val childPath = childNodes.head
+        val arrayStartIndex = childPath.indexOf("[")
+        val parsedChildPath = Try(childPath.substring(0, arrayStartIndex)).toOption.getOrElse(childPath)
+        val node = parent.findPath(parsedChildPath)
+        val newParentNode = if (node.isArray) {
+          (for {
+            arrayIndex ← Try(childPath.substring(arrayStartIndex + 1, childPath.indexOf("]")).toInt).toOption
+            element ← Try(node.elements().asScala.toList(arrayIndex)).toOption
+          } yield element).getOrElse(mapper.createObjectNode().nullNode())
+        } else node
+        findChildNode(newParentNode, childNodes.tail.mkString("."))
+      }
     }
 
     private def extractPathAndValueFromCondition(filteredChildCondition: String): (String, String) = {
@@ -120,7 +131,7 @@ class FreeMarkerRenderer extends ResponseDefinitionTransformer {
             .find(findChildNode(_, filteredChildPath).textValue() == filteredChildValue)
             .map(findChildNode(_, wantedChildPath)) match {
               case Some(wantedNode) ⇒ json2template(wrapper, wantedNode)
-              case _                ⇒ throw new TemplateModelException(s"Value $filteredChildValue not found for field $filteredChildPath on $array array")
+              case _                ⇒ wrapper.wrap(null)
             }
         case _ ⇒ throw new TemplateModelException("Invalid arguments types")
       }
