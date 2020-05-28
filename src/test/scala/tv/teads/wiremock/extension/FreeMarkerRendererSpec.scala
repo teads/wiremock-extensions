@@ -20,6 +20,8 @@ class FreeMarkerRendererSpec extends ExtensionSpec {
     ("array glue", """{"array":["1","2"]}""", s"""$${$$.array?join(",")}""", """1,2"""),
     ("array find first (simple case)", """{"cheap-cars":[{"details":{"price":15.5, "brand":"toyota"}},{"details":{"price":10,"brand":"lexus"}}]}""",
       s"""$${findFirstInArray('cheap-cars', 'details.brand == toyota', 'details.price')?c}""", """15.5"""),
+    ("array find first (simple case 2)", """{"cheap-cars":[{"details":{"price":15.5, "brand":"toyota"}},{"details":{"price":10,"brand":"lexus"}}]}""",
+      s"""$${findFirstInArray('cheap-cars', 'details.price == 15.5', 'details.brand')}""", """toyota"""),
     ("array find first (missing data)", """{"cheap-cars":[{"details":{"price":15.5, "brand":"toyota"}},{"details":{"price":10,"brand":"lexus"}}]}""",
       s"""$${(findFirstInArray('cheap-cars', 'details.brand == unknown', 'details.price')?c)!100}""", """100"""),
     ("array find first (array filter in wanted node)", """{"cheap-cars":[{"details":{"price":15.5,"brand":"toyota","customers":[{"name":"Alix","age":44},{"name":"Valentin","age":90}]}},{"details":{"price":10,"brand":"lexus","deals":[{"name":"Tristan","age":32}]}}]}""",
