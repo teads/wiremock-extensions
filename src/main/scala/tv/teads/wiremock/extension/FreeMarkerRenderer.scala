@@ -128,7 +128,7 @@ class FreeMarkerRenderer extends ResponseDefinitionTransformer {
           val (filteredChildPath, filteredChildValue) = extractPathAndValueFromCondition(filteredChildCondition)
 
           arrayNode.elements().asScala
-            .find(findChildNode(_, filteredChildPath).textValue() == filteredChildValue)
+            .find(findChildNode(_, filteredChildPath).asText() == filteredChildValue)
             .map(findChildNode(_, wantedChildPath)) match {
               case Some(wantedNode) ⇒ json2template(wrapper, wantedNode)
               case _                ⇒ wrapper.wrap(null)
